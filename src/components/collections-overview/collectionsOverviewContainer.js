@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { Query } from "react-apollo";
 import { gql } from "apollo-boost";
 import Spinner from "../spinner/spinner.component";
 import CollectionPreview from "../collection-preview/collection-preview.component";
@@ -20,18 +20,15 @@ const COLLECTIONS_DATA = gql`
 `;
 
 export default function CollectionsContainer() {
-  const { loading, error, data } = useQuery(COLLECTIONS_DATA);
-
-  if (loading) return <Spinner />;
-  if (error) return <p>Error</p>;
-
   return (
-    <div>
-      {Object.values(data).map(items =>
-        items.map(({ id, ...otherCollectionProps }) => (
-          <CollectionPreview key={id} {...otherCollectionProps} />
-        ))
-      )}
-    </div>
+    <Query query={COLLECTIONS_DATA}>
+      {({ data, loading, error }) => {
+        if (loading) return <Spinner />;
+        if (error) return <p>Error</p>;
+        return data.collections.map(({ id, ...props }) => (
+          <CollectionPreview key={id} {...props} />
+        ));
+      }}
+    </Query>
   );
 }
